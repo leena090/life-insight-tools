@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <title>알바 세금 환급 계산기</title>
+  <style>
+    body {
+      font-family: 'Noto Sans KR', sans-serif;
+      background: #f9f9f9;
+      padding: 20px;
+    }
+    .calculator-box {
+      background: #fff;
+      border-radius: 12px;
+      box-shadow: 0 0 10px rgba(0,0,0,0.05);
+      padding: 24px;
+      max-width: 600px;
+      margin: 0 auto;
+      border: 1px solid #eee;
+      position: relative;
+    }
+    .calculator-box h2 {
+      margin-top: 0;
+      font-size: 1.5em;
+      color: #333;
+    }
+    label {
+      font-weight: bold;
+      display: block;
+      margin-top: 20px;
+    }
+    input[type="number"] {
+      width: 100%;
+      padding: 10px;
+      margin-top: 5px;
+      border: 1px solid #ccc;
+      border-radius: 6px;
+      font-size: 1em;
+    }
+    .result-box {
+      margin-top: 24px;
+      padding: 16px;
+      border-radius: 10px;
+      font-size: 1em;
+    }
+    .result-success {
+      background: #d0f0d0;
+      border: 1px solid #88cc88;
+      color: #064b06;
+    }
+    .result-fail {
+      background: #ffe0e0;
+      border: 1px solid #ff9d9d;
+      color: #600;
+    }
+    .disclaimer {
+      margin-top: 24px;
+      padding: 12px;
+      background: #fffbe9;
+      border-left: 4px solid #f0c948;
+      font-size: 0.9em;
+      color: #444;
+    }
+    small {
+      color: #777;
+      font-size: 0.9em;
+    }
+    .logo {
+      position: absolute;
+      top: -40px;
+      right: 20px;
+      width: 100px;
+    }
+  </style>
+</head>
+<body>
+  <div class="calculator-box">
+    <img src="https://raw.githubusercontent.com/leena090/life-insight-tools/main/logo.png" alt="라이프 가디언 로고" class="logo">
+    <h2>🧮 알바 세금 환급 계산기 (2025년 기준)</h2>
+    
+    <label for="income">총소득 (전년도 1월~12월 기준)</label>
+    <input type="number" id="income" placeholder="예: 5500000">
+    <small>※ 예: 2024년 알바 소득 총합을 입력해주세요</small>
+
+    <label for="tax">공제된 세금 총액 (원)</label>
+    <input type="number" id="tax" placeholder="예: 180000">
+    
+    <label for="months">근무 개월 수 (1~12개월)</label>
+    <input type="number" id="months" placeholder="예: 6">
+
+    <button onclick="calculateRefund()" style="margin-top:20px; padding:10px 20px; font-size:1em; cursor:pointer; border:none; border-radius:8px; background:#3E7BFA; color:#fff;">환급 금액 계산하기</button>
+
+    <div id="result" class="result-box" style="display:none;"></div>
+
+    <div class="disclaimer">
+      📌 <b>주의사항 안내</b><br>
+      본 계산기는 2025년 기준 일반적인 세법 정보를 바탕으로 만들어졌으며, <u>실제 환급 가능 여부 및 금액은 개인의 소득, 공제 항목, 신고 방식에 따라 달라질 수 있습니다.</u><br><br>
+      이 결과는 참고용이며, 보다 정확한 환급 여부는 <b>국세청(☎126)</b> 또는 <b>세무 전문가</b>와 상담하시기 바랍니다.
+    </div>
+  </div>
+
+  <script>
+    function calculateRefund() {
+      const income = Number(document.getElementById("income").value);
+      const tax = Number(document.getElementById("tax").value);
+      const months = Number(document.getElementById("months").value);
+      const resultBox = document.getElementById("result");
+      resultBox.style.display = "block";
+
+      if (income === 0 || tax === 0 || months === 0 || isNaN(income) || isNaN(tax) || isNaN(months)) {
+        resultBox.className = "result-box result-fail";
+        resultBox.innerHTML = "입력값을 모두 정확히 입력해주세요.";
+        return;
+      }
+
+      const estimatedRefund = tax - (income * 0.014);
+
+      if (estimatedRefund > 0) {
+        resultBox.className = "result-box result-success";
+        resultBox.innerHTML = `<b>✅ 환급 예상 금액:</b> 약 ${estimatedRefund.toLocaleString()}원입니다.<br><br>실제 금액은 홈택스 신고 기준에 따라 달라질 수 있어요.`;
+      } else {
+        resultBox.className = "result-box result-fail";
+        resultBox.innerHTML = `<b>❌ 환급이 어려울 수 있습니다.</b><br>
+        입력하신 소득과 세금 비율로는 현재 기준에서 환급 대상이 아닐 가능성이 높아요.<br><br>
+        <u>주요 원인:</u><br>
+        - 세금이 공제되지 않았거나,<br>
+        - 연간 소득이 너무 낮아 공제 범위 내에 있었거나,<br>
+        - 이미 공제로 세금이 모두 정산된 경우일 수 있습니다.<br><br>
+        정확한 여부는 <b>홈택스</b> 또는 <b>국세청(☎126)</b>을 통해 확인해보세요.`;
+      }
+    }
+  </script>
+</body>
+</html>
