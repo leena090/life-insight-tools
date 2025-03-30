@@ -1,0 +1,68 @@
+
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>은행 예금이자 계산기</title>
+  <style>
+    body { font-family: 'Noto Sans KR', sans-serif; background: #f9fbff; padding: 20px; color: #333; }
+    label, input, select, button { display: block; margin: 10px 0; font-size: 1em; }
+    input, select { padding: 8px; width: 250px; }
+    button { padding: 10px 20px; background: #3E7BFA; color: white; border: none; border-radius: 6px; cursor: pointer; }
+    .result { margin-top: 20px; font-size: 1.1em; background: #fff; padding: 15px; border-radius: 10px; border: 1px solid #ccc; }
+  </style>
+</head>
+<body>
+  <h2>💰 은행 예금이자 계산기</h2>
+  <label>예치금 (원): <input type="number" id="principal" value="10000000" /></label>
+  <label>연 이자율 (%): <input type="number" id="rate" value="3.5" step="0.1" /></label>
+  <label>예치 기간 (개월): <input type="number" id="months" value="12" /></label>
+  <label>이자 방식:
+    <select id="type">
+      <option value="simple">단리</option>
+      <option value="compound">복리</option>
+    </select>
+  </label>
+  <button onclick="calculate()">이자 계산하기</button>
+
+  <div id="result" class="result" style="display:none;"></div>
+
+  <p style="font-size:0.9em; color:#555;">
+    📌 계산기는 참고용입니다. 세금, 수수료 등은 실제 상품과 차이가 있을 수 있습니다.<br>
+    📌 본 계산기는 <b>라이프 인싸이트 블로그</b>에서 제공됩니다.
+  </p>
+
+  <script>
+    function calculate() {
+      const p = parseFloat(document.getElementById('principal').value);
+      const r = parseFloat(document.getElementById('rate').value) / 100 / 12;
+      const m = parseFloat(document.getElementById('months').value);
+      const t = 0.154;
+      const type = document.getElementById('type').value;
+
+      if (isNaN(p) || isNaN(r) || isNaN(m)) return;
+
+      let interest = 0;
+      if (type === 'simple') {
+        interest = p * r * m;
+      } else {
+        interest = p * (Math.pow((1 + r), m) - 1);
+      }
+
+      const tax = interest * t;
+      const net = interest - tax;
+      const total = p + net;
+
+      const result = `
+        세전 이자: <b>${Math.floor(interest).toLocaleString()}원</b><br>
+        이자소득세(15.4%): ${Math.floor(tax).toLocaleString()}원<br>
+        세후 수령액: <b>${Math.floor(total).toLocaleString()}원</b>
+      `;
+      const resultDiv = document.getElementById('result');
+      resultDiv.innerHTML = result;
+      resultDiv.style.display = 'block';
+    }
+  </script>
+</body>
+</html>
