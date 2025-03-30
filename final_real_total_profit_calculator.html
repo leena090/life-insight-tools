@@ -1,0 +1,160 @@
+
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>통합 실질 수익 계산기</title>
+  <style>
+    body {
+      font-family: 'Noto Sans KR', sans-serif;
+      background: #f4f7fc;
+      padding: 20px;
+      color: #333;
+    }
+    .calculator-box {
+      background: #fff;
+      border-radius: 12px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+      padding: 30px;
+      max-width: 520px;
+      margin: 0 auto;
+    }
+    h2 {
+      font-size: 1.5em;
+      margin-bottom: 10px;
+      color: #2a2a2a;
+    }
+    label {
+      display: block;
+      margin-top: 15px;
+      font-weight: bold;
+    }
+    input, select {
+      width: 100%;
+      padding: 10px;
+      margin-top: 5px;
+      font-size: 1em;
+      border: 1px solid #ccc;
+      border-radius: 6px;
+    }
+    button {
+      width: 100%;
+      margin-top: 25px;
+      padding: 12px;
+      font-size: 1em;
+      color: #fff;
+      background: #3E7BFA;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+    }
+    .result-box {
+      background: #f0f7ff;
+      border: 1px solid #a6c8ff;
+      border-radius: 8px;
+      margin-top: 25px;
+      padding: 20px;
+      font-size: 1.05em;
+      color: #222;
+    }
+    .notice {
+      font-size: 0.9em;
+      margin-top: 20px;
+      color: #888;
+    }
+    .notice strong {
+      color: #e74c3c;
+    }
+    .brand {
+      margin-top: 30px;
+      font-size: 0.9em;
+      text-align: center;
+      color: #666;
+    }
+    .brand a {
+      color: #3E7BFA;
+      text-decoration: none;
+      font-weight: bold;
+    }
+  </style>
+</head>
+<body>
+  <div class="calculator-box">
+    <h2>💹 실질 수익 계산기 (명목이자 + 인플레이션 반영)</h2>
+    <p>예치금, 명목 금리, 물가상승률, 기간, 이자방식을 입력하면 <br>세후 수령액과 실질 수익률을 계산합니다.</p>
+
+    <label>예치금 (원)
+      <input type="number" id="principal" value="10000000" />
+    </label>
+    <label>명목 금리 (%)  
+      <input type="number" id="nominalRate" value="3.5" />
+    </label>
+    <label>물가상승률 (%)  
+      <input type="number" id="inflationRate" value="2.6" />
+    </label>
+    <label>예치 기간 (개월)
+      <input type="number" id="months" value="12" />
+    </label>
+    <label>이자 방식
+      <select id="interestType">
+        <option value="simple">단리</option>
+        <option value="compound">복리</option>
+      </select>
+    </label>
+
+    <button onclick="calculateCombined()">실질 수익 계산하기</button>
+
+    <div class="result-box" id="result" style="display:none;"></div>
+
+    <p class="notice">
+      <strong>※</strong> 본 계산기는 예금 기준이며, 세금 15.4% 포함 기준입니다.<br>
+      <strong>※</strong> 실질 수익률 공식: (1 + 명목금리) ÷ (1 + 물가상승률) - 1
+    </p>
+
+    <div class="brand">
+      📌 본 계산기는 <b>라이프 인싸이트</b>에서 제작되었습니다.<br>
+      👉 <a href="https://lulusetam.tistory.com" target="_blank">https://lulusetam.tistory.com</a><br>
+      ⚠️ 본 콘텐츠는 저작권 보호를 받으며, 무단 복제 및 재배포 시 법적 조치 대상이 될 수 있습니다.
+    </div>
+  </div>
+
+  <script>
+    function calculateCombined() {
+      const p = parseFloat(document.getElementById("principal").value);
+      const nRate = parseFloat(document.getElementById("nominalRate").value) / 100 / 12;
+      const inflation = parseFloat(document.getElementById("inflationRate").value) / 100;
+      const months = parseFloat(document.getElementById("months").value);
+      const type = document.getElementById("interestType").value;
+
+      if (isNaN(p) || isNaN(nRate) || isNaN(inflation) || isNaN(months)) return;
+
+      let interest = 0;
+      if (type === "simple") {
+        interest = p * nRate * months;
+      } else {
+        interest = p * (Math.pow(1 + nRate, months) - 1);
+      }
+
+      const tax = interest * 0.154;
+      const netInterest = interest - tax;
+      const totalAfterTax = p + netInterest;
+
+      const nominalAnnual = (type === "simple")
+        ? (interest / p / months) * 12
+        : (Math.pow(1 + nRate, 12) - 1);
+
+      const realAnnual = ((1 + nominalAnnual) / (1 + inflation)) - 1;
+
+      const result = `
+        📍 <b>세전 이자:</b> ${Math.floor(interest).toLocaleString()} 원<br>
+        📍 <b>세후 수령액:</b> ${Math.floor(totalAfterTax).toLocaleString()} 원<br>
+        📍 <b>실질 수익률:</b> ${(realAnnual * 100).toFixed(2)}%
+      `;
+      const resultDiv = document.getElementById("result");
+      resultDiv.innerHTML = result;
+      resultDiv.style.display = "block";
+    }
+  </script>
+</body>
+</html>
