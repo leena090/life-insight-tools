@@ -1,0 +1,213 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <title>프리랜서 종합소득세 환급 계산기</title>
+  <style>
+    body {
+      font-family: 'Arial', sans-serif;
+      background: #f9fbff;
+      padding: 20px;
+      color: #333;
+    }
+    h2 {
+      color: #3E7BFA;
+      margin-bottom: 10px;
+    }
+    .calculator {
+      background: #fff;
+      border-radius: 10px;
+      padding: 20px;
+      max-width: 600px;
+      margin: auto;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    }
+    label {
+      display: block;
+      margin: 12px 0 4px;
+      font-weight: bold;
+    }
+    input {
+      width: 100%;
+      padding: 10px;
+      font-size: 1em;
+      border: 1px solid #ccc;
+      border-radius: 6px;
+    }
+    .result {
+      margin-top: 20px;
+      background: #eef4ff;
+      padding: 15px;
+      border-left: 5px solid #3E7BFA;
+      border-radius: 6px;
+      font-size: 1em;
+      line-height: 1.6;
+    }
+    .description {
+      font-size: 0.9em;
+      color: #666;
+      line-height: 1.6;
+    }
+    button {
+      background-color: #3E7BFA;
+      color: white;
+      border: none;
+      padding: 12px 20px;
+      font-size: 1em;
+      margin-top: 15px;
+      border-radius: 6px;
+      cursor: pointer;
+    }
+    button:hover {
+      background-color: #2f63d6;
+    }
+    .disclaimer {
+      font-size: 0.85em;
+      color: #777;
+      margin-top: 20px;
+      background: #f8f9fa;
+      padding: 12px;
+      border-radius: 6px;
+    }
+    .tax-table {
+      margin-top: 30px;
+      border-collapse: collapse;
+      width: 100%;
+      font-size: 0.9em;
+    }
+    .tax-table th, .tax-table td {
+      border: 1px solid #ccc;
+      padding: 8px 10px;
+      text-align: center;
+    }
+    .tax-table th {
+      background-color: #e9f0ff;
+    }
+  </style>
+</head>
+<body>
+  <div class="calculator">
+    <h2>💡 프리랜서 종합소득세 환급 계산기</h2>
+    <p class="description">
+      본 계산기는 <b>2025년 세법 기준</b>에 따라 프리랜서 또는 사업소득자의 환급 가능성을 추정합니다.<br>
+      <b>※ 실제 결과는 신고 내용 및 공제 항목에 따라 달라질 수 있으며, 본 계산기는 참고용입니다.</b>
+    </p>
+
+    <!-- 입력필드 -->
+    <label for="income">총수입 (연간, 원)</label>
+    <input type="number" id="income" placeholder="예: 40000000">
+
+    <label for="dependents">인적공제 대상 수 (본인 포함)</label>
+    <input type="number" id="dependents" placeholder="예: 2">
+
+    <label for="card_exp">카드 지출 경비 (사업용 카드 사용분)<br><small style="color:#888">※ 국세청 공제 인정 비율 기준으로 대략 추산</small></label>
+    <input type="number" id="card_exp" placeholder="예: 1500000">
+
+    <label for="cash_exp">현금 지출 경비 (교통비, 식비 등)</label>
+    <input type="number" id="cash_exp" placeholder="예: 500000">
+
+    <label for="invoice_exp">계산서/세금계산서 지출</label>
+    <input type="number" id="invoice_exp" placeholder="예: 1000000">
+
+    <label for="withheld_tax">원천징수된 세금 <small style="color:#888">(근로계약서, 홈택스 - 지급명세서에서 확인 가능)</small></label>
+    <input type="number" id="withheld_tax" placeholder="예: 4000000">
+
+    <button onclick="calculateTax()">계산하기</button>
+
+    <div id="warning" style="display:none; margin-top:16px; padding:16px; border-left:5px solid #c0392b; background:#fff4f4; border-radius:6px; color:#b03e3e;">
+      ⚠️ <b style="color:#c0392b;">경고:</b> 입력된 필요경비가 총수입의 70%를 초과했습니다.<br>
+      실제 세무 신고 시 <u>일부 또는 전부가 인정되지 않아 가산세가 부과될 수 있습니다</u>.<br>
+      📌 국세청은 과다 경비 처리 시 <b>세무조사 대상</b>이 될 수 있음을 명심하세요.
+    </div>
+    <div class="result" id="output">
+      👉 예상 환급액 또는 추가 납부액이 아래에 표시됩니다.
+    </div>
+
+    <table class="tax-table">
+      <caption style="caption-side:top; font-weight:bold; margin-bottom:6px;">📊 2025년 종합소득세율 구간표</caption>
+      <thead>
+        <tr><th>과세표준</th><th>세율</th><th>누진공제액</th></tr>
+      </thead>
+      <tbody>
+        <tr><td>~1,400만원</td><td>6%</td><td>0</td></tr>
+        <tr><td>1,400만원 초과 ~ 5,000만원 이하</td><td>15%</td><td>126만원</td></tr>
+        <tr><td>5,000만원 초과 ~ 8,800만원 이하</td><td>24%</td><td>576만원</td></tr>
+        <tr><td>8,800만원 초과 ~ 1억5천만원 이하</td><td>35%</td><td>1,522만원</td></tr>
+        <tr><td>1억5천만원 초과 ~ 3억원 이하</td><td>38%</td><td>1,949만원</td></tr>
+        <tr><td>3억원 초과 ~ 5억원 이하</td><td>40%</td><td>2,549만원</td></tr>
+        <tr><td>5억원 초과 ~ 10억원 이하</td><td>42%</td><td>3,349만원</td></tr>
+        <tr><td>10억원 초과</td><td>45%</td><td>4,649만원</td></tr>
+      </tbody>
+    </table>
+
+    <div class="disclaimer">
+      ⚠️ 이 계산기는 세법 정보 제공 및 대략적인 환급 추정을 위한 참고 도구입니다.<br>
+      📌 실제 세무 신고 시에는 세무사 또는 국세청 가이드를 참고하여 정확히 신고해 주세요.<br>
+      ⛔ 모든 콘텐츠 및 코드의 저작권은 라이프 인사이트에 있으며, 무단 복제 및 재배포는 금지됩니다.
+    </div>
+  </div>
+
+<footer style="margin-top:40px; font-size:0.85em; color:#777; text-align:center;">
+  🧮 이 계산기는 <b>2025년 세법 기준</b>을 바탕으로<br>
+  <b>라이프 인사이트</b>와 <b>ChatGPT 리서치</b>가 공동 제작한 정보 도구입니다.<br><br>
+  ⚠️ 본 계산기는 참고용으로 제공되며, 실제 세무신고는 전문가와 상담 후 진행해 주세요.<br>
+  ⛔ 본 계산기의 콘텐츠 및 코드는 라이프 인사이트의 자산으로, 무단 복제 및 재배포를 금합니다.
+</footer>
+
+<script>
+function calculateTax() {
+  const income = parseFloat(document.getElementById('income').value) || 0;
+  const dependents = parseInt(document.getElementById('dependents').value) || 1;
+  const card = parseFloat(document.getElementById('card_exp').value) || 0;
+  const cash = parseFloat(document.getElementById('cash_exp').value) || 0;
+  const invoice = parseFloat(document.getElementById('invoice_exp').value) || 0;
+  const withheld = parseFloat(document.getElementById('withheld_tax').value) || 0;
+
+  const totalExp = card + cash + invoice;
+  const maxAllowableExp = income * 0.7;
+
+  const warningDiv = document.getElementById("warning");
+  if (totalExp > maxAllowableExp) {
+    warningDiv.style.display = "block";
+  } else {
+    warningDiv.style.display = "none";
+  }
+
+  const personalDeduction = 1500000;
+  const totalDeduction = personalDeduction * dependents;
+  const taxableIncome = Math.max(income - totalExp - totalDeduction, 0);
+
+  let tax = 0;
+  if (taxableIncome <= 14000000) {
+    tax = taxableIncome * 0.06;
+  } else if (taxableIncome <= 50000000) {
+    tax = 14000000 * 0.06 + (taxableIncome - 14000000) * 0.15;
+  } else if (taxableIncome <= 88000000) {
+    tax = 14000000 * 0.06 + (50000000 - 14000000) * 0.15 + (taxableIncome - 50000000) * 0.24;
+  } else if (taxableIncome <= 150000000) {
+    tax = 14000000 * 0.06 + (50000000 - 14000000) * 0.15 + (88000000 - 50000000) * 0.24 + (taxableIncome - 88000000) * 0.35;
+  } else if (taxableIncome <= 300000000) {
+    tax = 14000000 * 0.06 + (50000000 - 14000000) * 0.15 + (88000000 - 50000000) * 0.24 + (150000000 - 88000000) * 0.35 + (taxableIncome - 150000000) * 0.38;
+  } else if (taxableIncome <= 500000000) {
+    tax = 14000000 * 0.06 + (50000000 - 14000000) * 0.15 + (88000000 - 50000000) * 0.24 + (150000000 - 88000000) * 0.35 + (300000000 - 150000000) * 0.38 + (taxableIncome - 300000000) * 0.40;
+  } else if (taxableIncome <= 1000000000) {
+    tax = 14000000 * 0.06 + (50000000 - 14000000) * 0.15 + (88000000 - 50000000) * 0.24 + (150000000 - 88000000) * 0.35 + (300000000 - 150000000) * 0.38 + (500000000 - 300000000) * 0.40 + (taxableIncome - 500000000) * 0.42;
+  } else {
+    tax = 14000000 * 0.06 + (50000000 - 14000000) * 0.15 + (88000000 - 50000000) * 0.24 + (150000000 - 88000000) * 0.35 + (300000000 - 150000000) * 0.38 + (500000000 - 300000000) * 0.40 + (1000000000 - 500000000) * 0.42 + (taxableIncome - 1000000000) * 0.45;
+  }
+
+  const refund = withheld - tax;
+  let resultText = '';
+  if (refund > 0) {
+    resultText = `✅ 환급 예상 금액: ${Math.round(refund).toLocaleString()}원`;
+  } else if (refund < 0) {
+    resultText = `❌ 추가 납부 예상 금액: ${Math.round(-refund).toLocaleString()}원`;
+  } else {
+    resultText = `✔️ 환급 및 납부 없음 (0원)`;
+  }
+
+  document.getElementById("output").innerHTML = resultText;
+}
+</script>
+</body>
+</html>
