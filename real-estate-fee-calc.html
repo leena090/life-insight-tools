@@ -1,0 +1,69 @@
+
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <title>부동산 중개 수수료 계산기</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      padding: 20px;
+      line-height: 1.6;
+    }
+    label, select, input {
+      display: block;
+      margin: 10px 0;
+    }
+    .result {
+      margin-top: 20px;
+      font-weight: bold;
+    }
+  </style>
+</head>
+<body>
+  <h2>🏠 부동산 중개 수수료 계산기</h2>
+  <label>거래 유형:
+    <select id="type">
+      <option value="sale">매매</option>
+      <option value="rent">전세/월세</option>
+    </select>
+  </label>
+  <label>거래 금액 (만원):
+    <input type="number" id="amount" placeholder="예: 50000">
+  </label>
+  <label>적용 요율 (%):
+    <select id="rate">
+      <option value="0.3">0.3%</option>
+      <option value="0.4">0.4%</option>
+      <option value="0.5">0.5%</option>
+      <option value="0.6">0.6%</option>
+      <option value="0.7">0.7%</option>
+      <option value="0.8">0.8%</option>
+      <option value="0.9">0.9%</option>
+    </select>
+  </label>
+  <button onclick="calculate()">계산하기</button>
+  <div class="result" id="result"></div>
+
+  <script>
+    function calculate() {
+      const type = document.getElementById("type").value;
+      const amount = parseFloat(document.getElementById("amount").value);
+      const rate = parseFloat(document.getElementById("rate").value) / 100;
+      if (isNaN(amount)) {
+        document.getElementById("result").innerText = "거래 금액을 입력해주세요.";
+        return;
+      }
+
+      let fee = amount * rate;
+      if (type === "rent") {
+        // 월세 수수료 기준: (월세 x 100) + 보증금의 합계 기준
+        // 정확한 계산식은 지역, 부동산 협회 기준 등에 따라 달라짐
+        fee = fee * 0.9;  // 일반적인 전세/월세 적용 보정값
+      }
+
+      document.getElementById("result").innerText = "예상 중개 수수료는 약 " + fee.toLocaleString() + "만원입니다.";
+    }
+  </script>
+</body>
+</html>
