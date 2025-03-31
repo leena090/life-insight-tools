@@ -1,0 +1,138 @@
+
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <title>부동산 중개 수수료 계산기</title>
+  <style>
+    .calc-box {
+      max-width: 500px;
+      margin: 30px auto;
+      padding: 20px;
+      border: 2px solid #3E7BFA;
+      border-radius: 10px;
+      background: #f9f9f9;
+      font-family: 'Noto Sans KR', sans-serif;
+    }
+    .calc-box h3 {
+      text-align: center;
+      margin-bottom: 20px;
+      color: #3E7BFA;
+    }
+    .calc-box label {
+      display: block;
+      margin: 10px 0 5px;
+      font-weight: bold;
+    }
+    .calc-box input, .calc-box select {
+      width: 100%;
+      padding: 8px;
+      margin-bottom: 10px;
+    }
+    .calc-box button {
+      width: 100%;
+      background: #3E7BFA;
+      color: white;
+      padding: 10px;
+      border: none;
+      border-radius: 8px;
+      font-weight: bold;
+      cursor: pointer;
+    }
+    .result {
+      margin-top: 20px;
+      padding: 15px;
+      background: #e7f3ff;
+      border-radius: 8px;
+      font-weight: bold;
+      color: #222;
+    }
+    .info-card {
+      margin-top: 25px;
+      padding: 15px;
+      border: 1px dashed #aaa;
+      background: #fffef5;
+      border-radius: 8px;
+      font-size: 14px;
+      color: #444;
+      line-height: 1.6;
+    }
+    .info-card b {
+      color: #3E7BFA;
+    }
+  </style>
+</head>
+<body>
+
+<div class="calc-box">
+  <h3>💰 부동산 중개 수수료 계산기</h3>
+  
+  <label for="dealType">거래 유형</label>
+  <select id="dealType">
+    <option value="매매">매매</option>
+    <option value="전세">전세</option>
+    <option value="월세">월세</option>
+  </select>
+
+  <label for="amount">거래 금액 (만원)</label>
+  <input type="number" id="amount" placeholder="예: 85000">
+
+  <label for="rent">월세 (만원)</label>
+  <input type="number" id="rent" placeholder="월세 입력" disabled>
+
+  <label for="rate">수수료 요율 선택 (%)</label>
+  <select id="rate">
+    <option value="0.003">0.3%</option>
+    <option value="0.004">0.4%</option>
+    <option value="0.005">0.5%</option>
+    <option value="0.006">0.6%</option>
+    <option value="0.007">0.7%</option>
+    <option value="0.008">0.8%</option>
+    <option value="0.009">0.9%</option>
+  </select>
+
+  <button onclick="calcFee()">수수료 계산하기</button>
+  <div class="result" id="feeResult"></div>
+
+  <div class="info-card">
+    <b>※ 월세 수수료 계산은 어떻게 하나요?</b><br>
+    월세의 경우 <b>월세 × 100 ÷ 12</b>를 보증금에 더해<br>
+    '환산 보증금'을 계산한 후, 여기에 선택한 요율을 적용해 수수료를 계산합니다.<br><br>
+    예시: 보증금 2억 + 월세 100만원 → 환산금액 = 2억 + (100×100÷12) = 약 2억8,333만원<br>
+    여기에 요율 0.5% 적용 시 수수료는 <b>약 141만원</b>이 됩니다.
+  </div>
+</div>
+
+<script>
+  const dealTypeSelect = document.getElementById('dealType');
+  const rentInput = document.getElementById('rent');
+
+  dealTypeSelect.addEventListener('change', () => {
+    rentInput.disabled = dealTypeSelect.value !== '월세';
+  });
+
+  function calcFee() {
+    const type = dealTypeSelect.value;
+    let amount = parseFloat(document.getElementById('amount').value);
+    let rent = parseFloat(document.getElementById('rent').value || 0);
+    let rate = parseFloat(document.getElementById('rate').value);
+    let totalAmount = amount;
+
+    if (!amount || amount <= 0) {
+      document.getElementById('feeResult').innerText = '거래 금액을 정확히 입력해주세요.';
+      return;
+    }
+
+    if (type === '월세') {
+      totalAmount += (rent * 100 / 12);
+    }
+
+    const fee = Math.round(totalAmount * rate);
+    const display = fee.toLocaleString();
+
+    document.getElementById('feeResult').innerText = `예상 중개 수수료: ${display}원 (요율: ${(rate * 100).toFixed(1)}%)`;
+  }
+</script>
+
+</body>
+</html>
